@@ -187,7 +187,7 @@ export default function DataPage() {
         </section>
       </div>
 
-      <footer style={styles.footer as React.CSSProperties}>2025 GameCard</footer>
+      <footer style={styles.footer as React.CSSProperties}>2025 IndieDeck</footer>
     </div>
   );
 }

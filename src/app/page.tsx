@@ -551,7 +551,7 @@ export default function SubmitPage() {
         </form>
       </div>
       <footer style={styles.footer as React.CSSProperties}>
-        <a href="/data" style={{ textDecoration: "underline", color: "inherit" }}>Impressum, Datenschutz und Takedown Policy</a> · 2025 GameCard
+        <a href="/data" style={{ textDecoration: "underline", color: "inherit" }}>Impressum, Datenschutz und Takedown Policy</a> · 2025 IndieDeck
       </footer>
     </div>
   );
