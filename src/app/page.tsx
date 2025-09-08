@@ -379,7 +379,7 @@ export default function SubmitPage() {
       </header>
       <div style={styles.card as React.CSSProperties}>
         <div style={styles.header}>
-          <h1 style={{ margin: 0, fontSize: 22 }}>Submit your game</h1>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: "bold" }}>Submit your game</h1>
           <p style={{ margin: "6px 0 0", opacity: 0.8, fontSize: 14 }}>
             Fill the fields below. Required fields are marked with *
           </p>
