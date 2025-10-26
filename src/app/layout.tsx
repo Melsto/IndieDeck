@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "IndieDeck Submission",
+  title: "IndieDeck",
   description: "Submit your own Indie Game.",
 };
 
@@ -17,7 +18,7 @@ export default function RootLayout({
         style={{ fontFamily: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` }}
         className="antialiased"
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
