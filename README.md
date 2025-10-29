@@ -1,1 +1,1 @@
-GameCard Submission Page
+IndieDeck
