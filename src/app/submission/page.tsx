@@ -32,7 +32,7 @@ type Submission = {
   links: Links;
   email: string;
   rights_confirmed: boolean;
-  videourl: string; // required YouTube trailer URL
+  videourl?: string; // required YouTube trailer URL
 };
 
 const AGE_OPTIONS = [
@@ -124,10 +124,6 @@ export default function SubmitPage() {
     }
     if (!rights_confirmed) {
       setErr("You must confirm that you hold the rights to submit this game.");
-      return;
-    }
-    if (!videourl) {
-      setErr("You must provide a YouTube link to your Game Trailer.");
       return;
     }
     // require at least one store link
@@ -526,14 +522,13 @@ export default function SubmitPage() {
 
                     {/* Game Trailer (required) */}
           <div style={{ marginTop: 12 }}>
-            <label style={styles.label}>Game Trailer (YouTube link)*</label>
+            <label style={styles.label}>Game Trailer (YouTube link)</label>
             <input
               name="videourl"
               placeholder="https://www.youtube.com/watch?v=..."
               style={styles.input}
               type="url"
               pattern="https?://.+"
-              required
             />
             <div style={styles.help}>Add a YouTube link to your trailer.</div>
           </div>
