@@ -138,27 +138,28 @@ export default function MainPage() {
       container: {
         display: "flex",
         flexDirection: "row" as const,
-        alignItems: "stretch",            // stretch children to container width
+        alignItems: "flex-start",            // changed from "stretch"
         justifyContent: "center",
         margin: "0 auto",
-        height: "75%",
+        height: "auto",                      // changed from "75%"
         position: "relative",
         zIndex: 1,
         padding: 10,
         maxWidth: "680px",
         width: "100%",
-        boxSizing: "border-box",         // include padding in width
+        boxSizing: "border-box",       // include padding in width
       } as React.CSSProperties,
       mainContent: {
         flex: 1,
         display: "flex",
         justifyContent: "flex-start",
-        alignItems: "center",
+        alignItems: "stretch",             // changed from "center"
         flexDirection: "column" as const,
-        paddingTop: "2em",
+        marginTop: "32px",                 // changed from paddingTop: "2em"
         width: "100%",
         maxWidth: "100%",
         boxSizing: "border-box",
+        paddingBottom: "15em",
       } as React.CSSProperties,
       tabBar: {
         display: "flex",
@@ -192,9 +193,6 @@ export default function MainPage() {
         background: '#1a1a1a',
         border: '1px solid rgba(255,255,255,0.06)',
         borderRadius: 24,
-        height: '500px',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
         boxSizing: 'border-box',
         overflowWrap: 'anywhere',        // prevent long text from overflowing
         wordBreak: 'break-word',

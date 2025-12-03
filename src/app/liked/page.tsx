@@ -41,7 +41,7 @@ export default function MainPage() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: "1em",
+        paddingTop: "32px",
       } as React.CSSProperties,
       list: {
         display: "grid",
@@ -86,12 +86,12 @@ export default function MainPage() {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 3000,
-        padding: 20,
+        padding: 24,
       } as React.CSSProperties,
       sheet: {
         position: "relative",
-        maxWidth: 920,
-        width: "min(92vw, 920px)",
+        width: "auto",
+        maxWidth: "min(0px, 90vw)",
         margin: "0 auto",
         transformOrigin: "center",
         display: "flex",
@@ -99,7 +99,7 @@ export default function MainPage() {
       } as React.CSSProperties,
       closeHit: {
         position: "absolute",
-        top: 8,
+        top: 32,
         right: 8,
         width: 40,
         height: 40,
@@ -181,7 +181,7 @@ export default function MainPage() {
         borderLeft: "3px solid #ff7f2aff",
       } as React.CSSProperties,
       popClose: {
-        padding: "6px 10px",
+        padding: "10px",
         borderRadius: 50,
         border: "1px solid rgba(255,255,255,0.22)",
         background: "rgba(255,255,255,0.06)",
@@ -315,7 +315,6 @@ export default function MainPage() {
       {selected && (
         <div style={styles.overlay} onClick={() => setSelected(null)}>
           <div style={styles.sheet} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.closeHit} onClick={() => setSelected(null)} aria-label="Close overlay">✕</div>
             <div style={{ transform: 'scale(var(--card-scale, 1))', transformOrigin: 'center', transition: 'transform 0.3s ease', display: 'flex', justifyContent: 'center' }}>
               <GameCard data={toCardData(selected)} />
             </div>

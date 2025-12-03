@@ -57,29 +57,51 @@ export default function TabBar() {
       opacity: 0.85,
       cursor: "pointer",
       flex: 1,
+      padding: "8px 12px",
+      borderRadius: 30,
+      marginLeft: 8,
+      marginRight: 8,
+    },
+    activeItem: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 12,
+      cursor: "pointer",
+      flex: 1,
+      opacity: 1,
+      color: "#ef7f2a",
+      background: "#4242427e",
+      borderRadius: 30,
+      padding: "8px 12px",
+      marginLeft: 8,
+      marginRight: 8,
+      height: "57px",
+      borderTop: "1px solid rgba(255,255,255,0.14)",
     },
     icon: {
       width: 28,
       height: 28,
       borderRadius: 6,
-      background: "rgba(255, 255, 255, 0)",
+      background: "transparent",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 6,
+      marginBottom: 0,
       fontSize: 16,
     },
     activeIcon: {
       width: 28,
       height: 28,
       borderRadius: 6,
-      background: "#ff7f2aff",
+      background: "transparent",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 6,
       fontSize: 16,
-      color: "#ffffffff",
+      color: "#ef7f2a",
     },
   };
 
@@ -87,11 +109,12 @@ export default function TabBar() {
     <div style={styles.sidebar}>
       <div style={styles.container}>
         {items.map((item) => (
-          <div key={item.label} style={styles.item}>
-            <div
-              style={isActive(item.href) ? styles.activeIcon : styles.icon}
-              onClick={() => router.push(item.href)}
-            >
+          <div
+            key={item.label}
+            style={isActive(item.href) ? styles.activeItem : styles.item}
+            onClick={() => router.push(item.href)}
+          >
+            <div style={isActive(item.href) ? styles.activeIcon : styles.icon}>
               {item.icon}
             </div>
             <span>{item.label}</span>

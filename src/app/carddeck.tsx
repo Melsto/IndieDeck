@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { useLikes } from "./likestore";
 
 const SEEN_KEY = "gc_seen_v1";
@@ -177,7 +177,7 @@ export function Deck({ items, renderCard }: { items: any[]; renderCard: (item: a
     setStack(shuffleArray(filtered));
   }, [items]);
 
-  const handleSwiped = (dir: "left" | "right") => {
+  const handleSwiped = useCallback((dir: "left" | "right") => {
     setStack((s) => {
       const top = s[s.length - 1];
       const id = top?.id != null ? String(top.id) : undefined;
@@ -207,13 +207,29 @@ export function Deck({ items, renderCard }: { items: any[]; renderCard: (item: a
       // Remove the top card from the stack
       return s.slice(0, -1);
     });
-  };
+  }, [like, unlike, seen]);
 
   const absX = Math.abs(dragX);
   const progress = Math.max(0, Math.min(1, absX / (t || 200)));
   const liveDir: null | "left" | "right" = dragging && absX > 6 ? (dragX < 0 ? "left" : "right") : null;
   const liveScale = 0.8 + 0.4 * progress; // bouncy-ish scale while dragging
   const liveOpacity = progress * 0.95;
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (!stack.length) return;
+        const dir: "left" | "right" = e.key === "ArrowLeft" ? "left" : "right";
+        // Show the same release icon animation as a drag swipe
+        setReleaseDir(dir);
+        setTimeout(() => setReleaseDir(null), 380);
+        handleSwiped(dir);
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleSwiped, stack.length]);
 
   return (
     <div

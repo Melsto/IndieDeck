@@ -5,8 +5,6 @@ import GameCard from "./gamecard";
 import TabBar from "./tabbar";
 import { Deck } from "./carddeck";
 import { useGameStore } from "./gameload";
-import ExploreSwitcher from "./exploreswitcher";
-import Explore from "./explore";
 
 export default function MainPage() {
   const styles = useMemo(
@@ -32,6 +30,7 @@ export default function MainPage() {
         width: "100%",
         alignItems: "flex-start",
         position: "relative",
+        marginTop: "55px",
       } as React.CSSProperties,
       tabBar: {
         display: "flex",
@@ -170,7 +169,7 @@ export default function MainPage() {
   }, [filteredCatalog]);
 
   return (
-    <div style={{ ...styles.page, overflow: mode === "explore" ? "hidden auto" as const : "hidden" }}>
+    <div style={styles.page}>
       <div style={styles.tabBar}>
         <TabBar/>
       </div>
@@ -183,28 +182,16 @@ export default function MainPage() {
           />
         </a>
       </div>
-      <div style={styles.switcher}>
-        <ExploreSwitcher
-          value={mode}
-          onChange={(v: any) => setMode(v === "explore" ? "explore" : "forYou")}
-        />
-      </div>
       <div style={styles.container}>
         <div style={styles.mainContent}>
           {loading && <div style={{ padding: 16 }}>Loading…</div>}
           {error && <div style={{ padding: 16, color: 'crimson' }}>Error: {error}</div>}
-          {mode === "explore" ? (
-            <div style={{ width: "100%", position: "relative" }}>
-              <Explore />
-            </div>
-          ) : (
             <div style={styles.deckWrap}>
               <Deck
                 items={deckItems}
                 renderCard={(item, ctx) => <GameCard data={item} isFront={!!ctx?.isFront} />}
               />
             </div>
-          )}
         </div>
       </div>
     </div>

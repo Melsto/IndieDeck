@@ -57,7 +57,7 @@ export default function Explore() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 3000,
+        zIndex: 99999,
         padding: 20,
       } as React.CSSProperties,
       sheet: {
@@ -81,7 +81,7 @@ export default function Explore() {
         background: "rgba(255,255,255,0.08)",
         border: "1px solid rgba(255,255,255,0.2)",
         cursor: "pointer",
-        zIndex: 1,
+        zIndex: 99999,
       } as React.CSSProperties,
     }),
     []
@@ -172,7 +172,7 @@ export default function Explore() {
         <div style={styles.overlay} onClick={() => setSelected(null)}>
           <div style={styles.sheet} onClick={(e) => e.stopPropagation()}>
             <div style={styles.closeHit} onClick={() => setSelected(null)} aria-label="Close overlay">✕</div>
-            <div style={{ transform: 'scale(var(--card-scale, 1))', transformOrigin: 'center', transition: 'transform 0.3s ease', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ transform: 'scale(var(--card-scale, 1))', transformOrigin: 'center', transition: 'transform 0.3s ease', display: 'flex', justifyContent: 'center', zIndex: 999999 }}>
               <GameCard data={toCardData(selected)} />
             </div>
           </div>

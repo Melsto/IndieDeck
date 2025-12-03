@@ -10,6 +10,7 @@ export default function GameCard(props: { isFront?: boolean; data: { id: string;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showLinks, setShowLinks] = useState(false);
+  const [linksVisible, setLinksVisible] = useState(false);
   const linksRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -223,18 +224,30 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
   }, [lightboxOpen, props.data.previews.length]);
 
   useEffect(() => {
-  if (!showLinks) return;
-  const onDocClick = (e: MouseEvent) => {
-    const t = e.target as Node | null;
-    if (linksRef.current && t && !linksRef.current.contains(t)) {
-      setShowLinks(false);
+    if (!showLinks) {
+      setLinksVisible(false);
+      return;
     }
-  };
-  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowLinks(false); };
-  document.addEventListener('mousedown', onDocClick);
-  window.addEventListener('keydown', onKey);
-  return () => { document.removeEventListener('mousedown', onDocClick); window.removeEventListener('keydown', onKey); };
-}, [showLinks]);
+    // Start fade-in on next frame
+    setLinksVisible(false);
+    const raf = requestAnimationFrame(() => {
+      setLinksVisible(true);
+    });
+    const onDocClick = (e: MouseEvent) => {
+      const t = e.target as Node | null;
+      if (linksRef.current && t && !linksRef.current.contains(t)) {
+        setShowLinks(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowLinks(false); };
+    document.addEventListener('mousedown', onDocClick);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('mousedown', onDocClick);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [showLinks]);
 
   const MASK_PX = 32;
   const maskBoth = `linear-gradient(to right, transparent 0, black ${MASK_PX}px, black calc(100% - ${MASK_PX}px), transparent 100%)`;
@@ -580,7 +593,14 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
         </button>
       </div>
       {showLinks && (
-  <div style={styles.overlayBackdrop} onClick={() => setShowLinks(false)}>
+  <div
+    style={{
+      ...styles.overlayBackdrop,
+      opacity: linksVisible ? 1 : 0,
+      transition: "opacity 180ms ease-out",
+    }}
+    onClick={() => setShowLinks(false)}
+  >
     <div
       ref={linksRef}
       style={styles.overlayBox}
