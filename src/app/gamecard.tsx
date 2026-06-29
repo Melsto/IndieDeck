@@ -15,6 +15,7 @@ export default function GameCard(props: { isFront?: boolean; data: { id: string;
   const playerRef = useRef<HTMLIFrameElement | null>(null);
 
   const [showVideo, setShowVideo] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   // Mute state with localStorage persistence and sync
   const MUTE_KEY = "gc_playback_muted_v1";
   const [muted, setMuted] = useState<boolean>(() => {
@@ -135,6 +136,8 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
 };
 
   const embedSrc = useMemo(() => toYouTubeEmbed(coerceFirstUrl(props.data.videoUrl), muted), [props.data.videoUrl, muted]);
+  const shouldShowVideo = Boolean(embedSrc && autoplay && props.isFront !== false);
+  const videoVisible = shouldShowVideo && showVideo && videoReady;
   // PostMessage-based mute/unmute control for YouTube iframe
   useEffect(() => {
     const iframe = playerRef.current;
@@ -144,12 +147,13 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       const message = JSON.stringify({ event: 'command', func: muted ? 'mute' : 'unMute', args: [] });
       iframe.contentWindow.postMessage(message, '*');
     } catch {}
-  }, [muted, showVideo]);
+  }, [muted, showVideo, shouldShowVideo]);
 
   // Handler for iframe load to re-apply mute/unmute state
   const handlePlayerLoad = () => {
     const iframe = playerRef.current;
     if (!iframe || !iframe.contentWindow) return;
+    setVideoReady(true);
     try {
       // Ensure player is muted/unmuted as per setting
       const msg = JSON.stringify({ event: 'command', func: muted ? 'mute' : 'unMute', args: [] });
@@ -172,13 +176,18 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
   }, [autoplay]);
 
   useEffect(() => {
-    if (!embedSrc || !autoplay || props.isFront === false) {
+    if (!shouldShowVideo) {
       setShowVideo(false);
       return;
     }
     const t = setTimeout(() => setShowVideo(true), 2000);
     return () => clearTimeout(t);
-  }, [embedSrc, autoplay, props.isFront]);
+  }, [shouldShowVideo]);
+
+  useEffect(() => {
+    // If src/front/autoplay changes, wait for the player to report loaded again
+    setVideoReady(false);
+  }, [embedSrc, props.isFront, autoplay]);
 
   const formatLinkLabel = (key: string) =>
     key
@@ -332,6 +341,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       height: "275px",
       borderRadius: 22,
       overflow: "hidden",
+      background: "#050505",
     } as CSSProperties,
     coverImg: {
       position: "absolute",
@@ -339,7 +349,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       width: "100%",
       height: "100%",
       objectFit: "cover",
-      transition: "opacity 600ms ease",
+      transition: "opacity 450ms ease-in-out",
       opacity: 1,
     } as CSSProperties,
     videoFrame: {
@@ -349,9 +359,9 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       height: "100%",
       border: 0,
       objectFit: "cover",
-      transition: "opacity 600ms ease",
+      transition: "opacity 450ms ease-in-out",
       opacity: 0,
-      transform: "scale(1.09)", // slight zoom to remove black bars
+      pointerEvents: "none",
     } as CSSProperties,
     previewsWrapper: {
       position: "relative",
@@ -539,9 +549,9 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
         <img
           src={props.data.mainImage}
           alt="Main header"
-          style={{ ...styles.coverImg, opacity: showVideo && embedSrc ? 0 : 1 }}
+          style={{ ...styles.coverImg, opacity: videoVisible ? 0 : 1 }}
         />
-        {embedSrc && showVideo && (
+        {shouldShowVideo && embedSrc && (
           <iframe
             title={`${props.data.title} video`}
             src={embedSrc}
@@ -552,8 +562,12 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
             sandbox="allow-scripts allow-same-origin allow-presentation"
-            loading="lazy"
-            style={{ ...styles.videoFrame, opacity: 1 }}
+            loading="eager"
+            style={{
+              ...styles.videoFrame,
+              opacity: videoVisible ? 1 : 0,
+              pointerEvents: videoVisible ? "auto" : "none",
+            }}
           />
         )}
       </div>
