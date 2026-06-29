@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent-orange: #ef7f2a;
 }
 
 @theme inline {
@@ -23,4 +24,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 180ms ease, box-shadow 180ms ease;
+}
+
+button:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="reset"]:hover:not(:disabled) {
+  outline-color: var(--accent-orange);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-orange) 35%, transparent);
 }

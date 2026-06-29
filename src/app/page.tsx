@@ -69,6 +69,27 @@ export default function MainPage() {
         margin: 0,
         transition: "transform 0.3s ease",
       } as React.CSSProperties,
+      loaderWrap: {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "16px",
+        zIndex: 1200,
+        pointerEvents: "none",
+      } as React.CSSProperties,
+      loaderLabel: {
+        fontSize: "0.9rem",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase" as const,
+        color: "#d7e2ff",
+        opacity: 0.9,
+      } as React.CSSProperties,
     }),
     []
   );
@@ -170,6 +191,26 @@ export default function MainPage() {
 
   return (
     <div style={styles.page}>
+      <style jsx>{`
+        @keyframes cardDashLoop {
+          0% {
+            stroke-dashoffset: 140;
+          }
+          100% {
+            stroke-dashoffset: -140;
+          }
+        }
+
+        @keyframes cardGlow {
+          0%,
+          100% {
+            filter: drop-shadow(0 0 0px #ef7f2a);
+          }
+          50% {
+            filter: drop-shadow(0 0 10px #ef7f2a);
+          }
+        }
+      `}</style>
       <div style={styles.tabBar}>
         <TabBar/>
       </div>
@@ -184,7 +225,33 @@ export default function MainPage() {
       </div>
       <div style={styles.container}>
         <div style={styles.mainContent}>
-          {loading && <div style={{ padding: 16 }}>Loading…</div>}
+          {loading && (
+            <div style={styles.loaderWrap} aria-live="polite" aria-label="Loading games">
+              <svg
+                width="70"
+                height="94"
+                viewBox="0 0 70 94"
+                role="img"
+                aria-hidden="true"
+                style={{ animation: "cardGlow 1.5s ease-in-out infinite" }}
+              >
+                <rect
+                  x="8"
+                  y="8"
+                  width="54"
+                  height="78"
+                  rx="8"
+                  ry="8"
+                  fill="none"
+                  stroke="#ef7f2a"
+                  strokeWidth="3"
+                  strokeDasharray="70 70"
+                  style={{ animation: "cardDashLoop 1.25s linear infinite" }}
+                />
+              </svg>
+              <div style={styles.loaderLabel}>Loading IndieDeck</div>
+            </div>
+          )}
           {error && <div style={{ padding: 16, color: 'crimson' }}>Error: {error}</div>}
             <div style={styles.deckWrap}>
               <Deck
