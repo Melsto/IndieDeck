@@ -77,13 +77,14 @@ export default function GameCard(props: { isFront?: boolean; data: { id: string;
     return s || null;
   };
 
-// Convert a YouTube watch/shorts/share/embed URL to an embeddable URL (with overlays suppressed)
+// Convert a YouTube watch/shorts/share/embed URL to an embeddable URL.
+// YouTube still owns some branding/overlay behavior, but these flags keep it as minimal as possible.
 const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | null => {
   if (!url) return null;
   try {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const api = `enablejsapi=1${origin ? `&origin=${encodeURIComponent(origin)}` : ""}`;
-    // Common params to minimize overlays and prevent end-screen recommendations
+    // Common params to minimize overlays, keyboard shortcuts, and recommendations.
     const common =
       `autoplay=1&mute=${muted ? 1 : 0}&playsinline=1` +
       `&controls=0` +
@@ -91,6 +92,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       `&modestbranding=1` +
       `&iv_load_policy=3` +
       `&fs=0&disablekb=1` +
+      `&cc_load_policy=0` +
       `&${api}`;
 
     // Already an embed URL
@@ -112,18 +114,18 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       host === "youtube-nocookie.com"
     ) {
       const v = u.searchParams.get("v");
-      if (v) return `https://www.youtube.com/embed/${v}?${common}&loop=1&playlist=${v}`;
+      if (v) return `https://www.youtube-nocookie.com/embed/${v}?${common}&loop=1&playlist=${v}`;
 
       const parts = u.pathname.split("/").filter(Boolean);
       if (parts[0] === "shorts" && parts[1])
-        return `https://www.youtube.com/embed/${parts[1]}?${common}&loop=1&playlist=${parts[1]}`;
+        return `https://www.youtube-nocookie.com/embed/${parts[1]}?${common}&loop=1&playlist=${parts[1]}`;
     }
 
     // youtu.be/VIDEOID
     if (host === "youtu.be") {
       const id = u.pathname.replace("/", "");
       if (id)
-        return `https://www.youtube.com/embed/${id}?${common}&loop=1&playlist=${id}`;
+        return `https://www.youtube-nocookie.com/embed/${id}?${common}&loop=1&playlist=${id}`;
     }
 
     return null;
@@ -195,6 +197,17 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
     const { scrollLeft, clientWidth, scrollWidth } = el;
     setShowLeft(scrollLeft > 0);
     setShowRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  const handleHorizontalWheel: React.WheelEventHandler<HTMLDivElement> = (e) => {
+    const el = e.currentTarget;
+    if (el.scrollWidth <= el.clientWidth) return;
+
+    const dominantDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (dominantDelta === 0) return;
+
+    el.scrollLeft += dominantDelta;
+    e.preventDefault();
   };
 
   useEffect(() => {
@@ -535,9 +548,11 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
             ref={playerRef}
             onLoad={handlePlayerLoad}
             // Set src only when visible for better autoplay reliability
-            allow="autoplay; fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
+            loading="lazy"
             style={{ ...styles.videoFrame, opacity: 1 }}
           />
         )}
@@ -550,6 +565,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
           aria-label="Screenshots"
           role="list"
           onScroll={updateFades}
+          onWheel={handleHorizontalWheel}
         >
           {props.data.previews.map((url, i) => (
             <img
@@ -568,7 +584,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
           <p>{props.data.description}</p>
         </div>
         <div style={styles.divider} />
-        <div style={styles.details} className="noScrollbar">
+        <div style={styles.details} className="noScrollbar" onWheel={handleHorizontalWheel}>
           <div style={styles.detailItem}>
             <span style={styles.label}>Developer:</span> <span style={styles.value}>{props.data.developer}</span>
           </div>
