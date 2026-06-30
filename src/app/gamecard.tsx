@@ -8,11 +8,14 @@ export default function GameCard(props: { isFront?: boolean; data: { id: string;
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxMounted, setLightboxMounted] = useState(false);
+  const [lightboxVisible, setLightboxVisible] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showLinks, setShowLinks] = useState(false);
   const [linksVisible, setLinksVisible] = useState(false);
   const linksRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<HTMLIFrameElement | null>(null);
+  const lightboxTimerRef = useRef<number | null>(null);
 
   const [showVideo, setShowVideo] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -219,6 +222,29 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
     e.preventDefault();
   };
 
+  const openLightbox = (index: number) => {
+    if (lightboxTimerRef.current !== null) {
+      window.clearTimeout(lightboxTimerRef.current);
+      lightboxTimerRef.current = null;
+    }
+    setLightboxIndex(index);
+    setLightboxMounted(true);
+    setLightboxOpen(true);
+    requestAnimationFrame(() => setLightboxVisible(true));
+  };
+
+  const closeLightbox = () => {
+    setLightboxVisible(false);
+    setLightboxOpen(false);
+    if (lightboxTimerRef.current !== null) {
+      window.clearTimeout(lightboxTimerRef.current);
+    }
+    lightboxTimerRef.current = window.setTimeout(() => {
+      setLightboxMounted(false);
+      lightboxTimerRef.current = null;
+    }, 220);
+  };
+
   useEffect(() => {
     updateFades();
     const el = scrollerRef.current;
@@ -230,6 +256,14 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
     return () => {
       el.removeEventListener("scroll", onScroll as any);
       window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (lightboxTimerRef.current !== null) {
+        window.clearTimeout(lightboxTimerRef.current);
+      }
     };
   }, []);
 
@@ -308,10 +342,12 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
   const styles: Record<string, CSSProperties> = {
     card: {
       borderRadius: 50,
-      backgroundColor: "rgba(255,255,255,0.06)",
+      backgroundColor: "rgba(0,0,0,0.5)",
+      backgroundImage:
+        "linear-gradient(135deg, color-mix(in srgb, rgba(0,0,0,0.5) 88%, #ffffff 20%), color-mix(in srgb, rgba(0,0,0,0.5) 92%, #6e9eff 5%))",
       backdropFilter: "blur(28px)",
       WebkitBackdropFilter: "blur(28px)",
-      border: "1px solid rgba(255,255,255,0.14)",
+      border: "1px solid color-mix(in srgb, rgba(255, 255, 255, 0.14) 70%, #ffffff 10%)",
       padding: 24,
       width: "500px",
       overflow: "hidden",
@@ -588,7 +624,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
               alt={`Screenshot ${i + 1}`}
               style={{ ...styles.previewImage, cursor: 'zoom-in' }}
               role="button"
-              onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
+              onClick={() => openLightbox(i)}
             />
           ))}
         </div>
@@ -700,16 +736,41 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
     </div>
   </div>
 )}
-      {lightboxOpen && typeof document !== 'undefined' && createPortal(
-        <div style={styles.lightboxBackdrop} onClick={() => setLightboxOpen(false)}>
-          <div style={styles.lightboxImgWrap} onClick={(e) => e.stopPropagation()}>
+      {lightboxMounted && typeof document !== 'undefined' && createPortal(
+        <div
+          style={{
+            ...styles.lightboxBackdrop,
+            opacity: lightboxVisible ? 1 : 0,
+            transition: "opacity 220ms ease",
+          }}
+          onClick={closeLightbox}
+        >
+          <div
+            style={{
+              ...styles.lightboxImgWrap,
+              opacity: lightboxVisible ? 1 : 0,
+              transform: lightboxVisible ? "scale(1) translateY(0)" : "scale(0.97) translateY(10px)",
+              transition: "opacity 220ms ease, transform 220ms ease",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={props.data.previews[lightboxIndex]}
               alt={`Screenshot ${lightboxIndex + 1}`}
-              style={styles.lightboxImg}
+              style={{
+                ...styles.lightboxImg,
+                opacity: lightboxVisible ? 1 : 0,
+                transform: lightboxVisible ? "scale(1)" : "scale(1.02)",
+                transition: "opacity 220ms ease, transform 220ms ease",
+              }}
             />
             <div
-              style={{ ...styles.lightboxArrow, left: 30 }}
+              style={{
+                ...styles.lightboxArrow,
+                left: 30,
+                opacity: lightboxVisible ? 1 : 0,
+                transition: "opacity 220ms ease, transform 220ms ease",
+              }}
               onClick={() => setLightboxIndex((i) => (i - 1 + props.data.previews.length) % props.data.previews.length)}
               aria-label="Previous screenshot"
               role="button"
@@ -717,7 +778,12 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
               ‹
             </div>
             <div
-              style={{ ...styles.lightboxArrow, right: 30 }}
+              style={{
+                ...styles.lightboxArrow,
+                right: 30,
+                opacity: lightboxVisible ? 1 : 0,
+                transition: "opacity 220ms ease, transform 220ms ease",
+              }}
               onClick={() => setLightboxIndex((i) => (i + 1) % props.data.previews.length)}
               aria-label="Next screenshot"
               role="button"
@@ -726,7 +792,7 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
             </div>
             <div
               style={styles.lightboxClose}
-              onClick={() => setLightboxOpen(false)}
+              onClick={closeLightbox}
               aria-label="Close"
               role="button"
             >

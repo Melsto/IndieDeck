@@ -5,6 +5,7 @@ import GameCard from "./gamecard";
 import TabBar from "./tabbar";
 import { Deck } from "./carddeck";
 import { useGameStore } from "./gameload";
+import SwipeHint from "./swipehint";
 
 export default function MainPage() {
   const styles = useMemo(
@@ -89,6 +90,22 @@ export default function MainPage() {
         textTransform: "uppercase" as const,
         color: "#d7e2ff",
         opacity: 0.9,
+      } as React.CSSProperties,
+      bottomGlow: {
+        position: "fixed",
+        left: "50%",
+        bottom: "200px",
+        transform: "translateX(-50%)",
+        width: "2020px",
+        height: "2040px",
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.03) 28%, rgba(255, 255, 255, 0.01) 48%, rgba(255, 255, 255, 0) 100%)",
+        filter: "blur(22px)",
+        opacity: 0.8,
+        pointerEvents: "none",
+        zIndex: 0,
+        animation: "bottomGlowPulse 5s ease-in-out infinite",
       } as React.CSSProperties,
     }),
     []
@@ -210,7 +227,21 @@ export default function MainPage() {
             filter: drop-shadow(0 0 10px #ef7f2a);
           }
         }
+
+        @keyframes bottomGlowPulse {
+          0%,
+          100% {
+            opacity: 0.62;
+            transform: translateX(-50%) scale(0.96);
+          }
+          50% {
+            opacity: 0.88;
+            transform: translateX(-50%) scale(1);
+          }
+        }
+
       `}</style>
+      <div style={styles.bottomGlow} aria-hidden="true" />
       <div style={styles.tabBar}>
         <TabBar/>
       </div>
@@ -261,6 +292,7 @@ export default function MainPage() {
             </div>
         </div>
       </div>
+      <SwipeHint />
     </div>
   );
 }
