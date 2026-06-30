@@ -8,6 +8,7 @@ import { useGameStore } from "./gameload";
 import SwipeHint from "./swipehint";
 
 export default function MainPage() {
+  const [deckEmpty, setDeckEmpty] = useState(false);
   const styles = useMemo(
     () => ({
       page: {
@@ -90,6 +91,12 @@ export default function MainPage() {
         textTransform: "uppercase" as const,
         color: "#d7e2ff",
         opacity: 0.9,
+      } as React.CSSProperties,
+      emptyLabel: {
+        fontSize: "0.95rem",
+        letterSpacing: "0.03em",
+        color: "#f0f0f0",
+        opacity: 0.96,
       } as React.CSSProperties,
       bottomGlow: {
         position: "fixed",
@@ -284,10 +291,39 @@ export default function MainPage() {
             </div>
           )}
           {error && <div style={{ padding: 16, color: 'crimson' }}>Error: {error}</div>}
+          {!loading && !error && deckItems.length > 0 && deckEmpty && (
+            <div style={styles.loaderWrap} aria-live="polite" aria-label="No more games">
+              <svg
+                width="70"
+                height="94"
+                viewBox="0 0 70 94"
+                role="img"
+                aria-hidden="true"
+                style={{ animation: "cardGlow 1.5s ease-in-out infinite" }}
+              >
+                <rect
+                  x="8"
+                  y="8"
+                  width="54"
+                  height="78"
+                  rx="13"
+                  ry="13"
+                  fill="none"
+                  stroke="#ef7f2a"
+                  strokeWidth="3"
+                  strokeDasharray="70 70"
+                  style={{ animation: "cardDashLoop 1.25s linear infinite" }}
+                />
+              </svg>
+              <div style={styles.emptyLabel}>We'll be back with more games soon!
+              </div>
+            </div>
+          )}
             <div style={styles.deckWrap}>
               <Deck
                 items={deckItems}
                 renderCard={(item, ctx) => <GameCard data={item} isFront={!!ctx?.isFront} />}
+                onEmptyChange={setDeckEmpty}
               />
             </div>
         </div>

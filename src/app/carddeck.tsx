@@ -148,7 +148,7 @@ function shuffleArray<T>(src: T[]): T[] {
   return a;
 }
 
-export function Deck({ items, renderCard }: { items: any[]; renderCard: (item: any, ctx?: DeckRenderCtx) => React.ReactNode }) {
+export function Deck({ items, renderCard, onEmptyChange }: { items: any[]; renderCard: (item: any, ctx?: DeckRenderCtx) => React.ReactNode; onEmptyChange?: (isEmpty: boolean) => void }) {
   const [stack, setStack] = useState(items);
   const { like, unlike } = useLikes();
 
@@ -176,6 +176,10 @@ export function Deck({ items, renderCard }: { items: any[]; renderCard: (item: a
     });
     setStack(shuffleArray(filtered));
   }, [items]);
+
+  useEffect(() => {
+    onEmptyChange?.(stack.length === 0);
+  }, [onEmptyChange, stack.length]);
 
   const handleSwiped = useCallback((dir: "left" | "right") => {
     setStack((s) => {
