@@ -344,10 +344,12 @@ const toYouTubeEmbed = (url?: string | null, muted: boolean = false): string | n
       borderRadius: 50,
       backgroundColor: "rgba(0,0,0,0.5)",
       backgroundImage:
-        "linear-gradient(135deg, color-mix(in srgb, rgba(0,0,0,0.5) 88%, #ffffff 20%), color-mix(in srgb, rgba(0,0,0,0.5) 92%, #6e9eff 5%))",
+        "radial-gradient(48% 38% at 11% 9%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 28%, rgba(255,255,255,0) 62%), linear-gradient(135deg, color-mix(in srgb, rgba(0,0,0,0.5) 88%, #ffffff 10%), color-mix(in srgb, rgba(0,0,0,0.5) 52%, #6e9eff 5%))",
       backdropFilter: "blur(28px)",
       WebkitBackdropFilter: "blur(28px)",
-      border: "1px solid color-mix(in srgb, rgba(255, 255, 255, 0.14) 70%, #ffffff 10%)",
+      border: "1px solid color-mix(in srgb, rgba(255, 255, 255, 0.14) 80%, #ffffff 10%)",
+      boxShadow:
+        "inset 0 0 0 1px rgba(255,255,255,0.05), inset 6px 6px 12px rgba(255,255,255,0.09), inset -4px -4px 10px rgba(255,255,255,0.03)",
       padding: 24,
       width: "500px",
       overflow: "hidden",
