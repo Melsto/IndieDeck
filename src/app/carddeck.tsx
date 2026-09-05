@@ -30,6 +30,13 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
 
   const threshold = () => (typeof window !== "undefined" ? Math.min(220, window.innerWidth * 0.28) : 200);
 
+  const triggerSwipeHaptic = (dir: "left" | "right") => {
+    if (typeof navigator === "undefined" || !navigator.vibrate) return;
+    const isMobile = navigator.maxTouchPoints > 0 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    navigator.vibrate(dir === "right" ? 18 : [10, 20, 10]);
+  };
+
   const disableGlobalSelection = () => {
     try {
       const root = document.documentElement as HTMLElement;
@@ -79,6 +86,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
     // decide swipe
     if (Math.abs(x) > t) {
       const dir: "left" | "right" = x > 0 ? "right" : "left";
+      triggerSwipeHaptic(dir);
       // fling off-screen
       const offX = (Math.sign(x) || 1) * (window.innerWidth + 400);
       setTransform(offX, y, true);
@@ -111,6 +119,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
     const { x, y } = pos.current;
     if (Math.abs(x) > t) {
       const dir: "left" | "right" = x > 0 ? "right" : "left";
+      triggerSwipeHaptic(dir);
       const offX = (Math.sign(x) || 1) * (window.innerWidth + 400);
       setTransform(offX, y, true);
       setTimeout(() => onSwiped(dir), FLING_MS);
