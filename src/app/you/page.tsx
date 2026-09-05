@@ -36,26 +36,6 @@ export default function MainPage() {
     }
   });
 
-  const [autoplay, setAutoplay] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true; // default ON
-    try {
-      const raw = window.localStorage.getItem("gc_playback_autoplay_v1");
-      return raw === null ? true : JSON.parse(raw) === true;
-    } catch {
-      return true;
-    }
-  });
-
-  const [muted, setMuted] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false; // default MUTED OFF
-    try {
-      const raw = window.localStorage.getItem("gc_playback_muted_v1");
-      return raw === null ? false : JSON.parse(raw) === true;
-    } catch {
-      return false;
-    }
-  });
-
   const [resetMsg, setResetMsg] = useState<string | null>(null);
 
   // Persist on change
@@ -64,14 +44,6 @@ export default function MainPage() {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selected)));
     } catch {}
   }, [selected]);
-
-  useEffect(() => {
-    try { window.localStorage.setItem("gc_playback_autoplay_v1", JSON.stringify(autoplay)); } catch {}
-  }, [autoplay]);
-
-  useEffect(() => {
-    try { window.localStorage.setItem("gc_playback_muted_v1", JSON.stringify(muted)); } catch {}
-  }, [muted]);
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -350,21 +322,6 @@ export default function MainPage() {
               title={""}
             />
 
-            <div style={{ height: 12 }} />
-
-            <div style={styles.sectionTitle}>Playback Settings</div>
-            <GenreToggles
-              genres={["Autoplay Videos", "Mute Videos"]}
-              selected={new Set([
-                ...(autoplay ? ["Autoplay Videos"] : []),
-                ...(muted ? ["Mute Videos"] : []),
-              ])}
-              onToggle={(label) => {
-                if (label === "Autoplay Videos") setAutoplay(v => !v);
-                if (label === "Mute Videos") setMuted(v => !v);
-              }}
-              title={""}
-            />
             <div style={{ height: 12 }} />
             <div style={styles.controlsRow}>
               <button type="button" onClick={resetSeen} style={styles.smallBtn}>Reset Seen Games</button>
