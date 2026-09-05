@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+.admin-shell { min-height: 100dvh; background: #111; color: #f7f7f2; font-family: Georgia, "Times New Roman", serif; padding: 48px 24px; }
+.admin-layout { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr); gap: 56px; }.admin-login { width: min(100%, 390px); margin: 12vh auto; display: grid; gap: 18px; }.admin-kicker { color: #ef7f2a; font: 700 12px ui-sans-serif, sans-serif; letter-spacing: .12em; text-transform: uppercase; margin: 0; }.admin-shell h1 { font-size: 38px; margin: 8px 0 28px; }.admin-shell h2 { margin: 0; font-size: 23px; }.admin-form { display: grid; gap: 18px; }.admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }.admin-shell label, .admin-shell legend { display: grid; gap: 7px; font: 700 13px ui-sans-serif, sans-serif; }.admin-shell input, .admin-shell select, .admin-shell textarea { box-sizing: border-box; width: 100%; color: #f7f7f2; background: #1b1b1b; border: 1px solid #3b3b3b; border-radius: 4px; padding: 10px; font: 15px ui-sans-serif, sans-serif; }.admin-shell textarea { min-height: 92px; resize: vertical; }.admin-shell fieldset { border: 1px solid #3b3b3b; border-radius: 4px; padding: 14px; }.admin-shell legend { padding: 0 4px; }.admin-primary, .admin-login button { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: #ef7f2a; color: #151515; border: 0; border-radius: 4px; padding: 11px 15px; font: 800 14px ui-sans-serif, sans-serif; cursor: pointer; }.admin-primary:disabled, .admin-login button:disabled { opacity: .6; cursor: wait; }.admin-message { color: #f6bc75; margin: 0; font: 14px ui-sans-serif, sans-serif; }.admin-error { color: #ff8b7f; margin: 0; font: 14px ui-sans-serif, sans-serif; }.admin-count { color: #aaa; margin-top: 6px; font: 14px ui-sans-serif, sans-serif; }.admin-games { display: grid; gap: 8px; margin-top: 18px; max-height: 70dvh; overflow: auto; }.admin-game { display: grid; grid-template-columns: 52px 1fr 32px; gap: 10px; align-items: center; border-bottom: 1px solid #303030; padding: 8px 0; font-family: ui-sans-serif, sans-serif; }.admin-game img, .admin-image-placeholder { width: 52px; height: 42px; object-fit: cover; background: #282828; border-radius: 3px; }.admin-game strong, .admin-game span { display: block; }.admin-game span { margin-top: 4px; color: #aaa; font-size: 12px; }.admin-delete { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 4px; color: #ff9e92; background: transparent; cursor: pointer; }.admin-delete:hover { background: #3a211e; } @media (max-width: 760px) { .admin-shell { padding: 28px 16px; }.admin-layout { grid-template-columns: 1fr; gap: 42px; }.admin-grid { grid-template-columns: 1fr; }.admin-games { max-height: none; } }
+.steam-import { position: relative; margin: -12px 0 22px; }.steam-results { position: absolute; z-index: 3; width: 100%; border: 1px solid #4b4b4b; background: #191919; }.steam-results button { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center; width: 100%; padding: 8px; border: 0; border-bottom: 1px solid #333; background: transparent; color: #f7f7f2; text-align: left; cursor: pointer; font: 14px ui-sans-serif, sans-serif; }.steam-results button:hover { background: #2a2a2a; }.steam-results img { width: 52px; height: 28px; object-fit: cover; }.imported-images { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }.imported-images img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; }
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --accent-orange: #ef7f2a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 180ms ease, box-shadow 180ms ease;
+}
+
+button:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="reset"]:hover:not(:disabled) {
+  outline-color: var(--accent-orange);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-orange) 35%, transparent);
+}

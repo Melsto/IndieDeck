@@ -1,0 +1,334 @@
+"use client";
+
+import React, { useMemo, useState, useRef, useEffect } from "react";
+import GameCard from "./gamecard";
+import TabBar from "./tabbar";
+import { Deck } from "./carddeck";
+import { useGameStore } from "./gameload";
+import SwipeHint from "./swipehint";
+
+export default function MainPage() {
+  const [deckEmpty, setDeckEmpty] = useState(false);
+  const styles = useMemo(
+    () => ({
+      page: {
+        fontFamily:
+          'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+        background: "#111",
+        minHeight: "100dvh",
+        color: "#ffffffff",
+        padding: "24px",
+        overflow: "hidden",
+        height: "100vh",
+        width: "100vw",
+        position: "fixed",
+        top: 0,
+        left: 0,
+      } as React.CSSProperties,
+      container: {
+        display: "flex",
+        flexDirection: "row" as const,
+        height: "100%",
+        width: "100%",
+        alignItems: "flex-start",
+        position: "relative",
+        marginTop: "55px",
+      } as React.CSSProperties,
+      tabBar: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      } as React.CSSProperties,
+      mainContent: {
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 999,
+      } as React.CSSProperties,
+      switcher: {
+        display: "flex",
+        justifyContent: "right",
+        alignItems: "right",
+        marginBottom: "15px",
+        zIndex: 99,
+      } as React.CSSProperties,
+      logo: {
+        position: "absolute",
+        top: 0,
+        left: 35,
+        zIndex: -2,
+        pointerEvents: "auto",
+      } as React.CSSProperties,
+      deckWrap: {
+        position: "absolute",
+        top: 0,
+        left: "50%",
+        transform: "translateX(-50%) scale(var(--deck-scale, 1))",
+        aspectRatio: "16 / 9",
+        width: "min(90vw, 1200px)",
+        transformOrigin: "center top",
+        margin: 0,
+        transition: "transform 0.3s ease",
+      } as React.CSSProperties,
+      loaderWrap: {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        display: "flex",
+        flexDirection: "column" as const,
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px",
+        padding: "16px",
+        zIndex: 1200,
+        pointerEvents: "none",
+      } as React.CSSProperties,
+      loaderLabel: {
+        fontSize: "0.9rem",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase" as const,
+        color: "#d7e2ff",
+        opacity: 0.9,
+      } as React.CSSProperties,
+      emptyLabel: {
+        fontSize: "0.95rem",
+        letterSpacing: "0.03em",
+        color: "#f0f0f0",
+        opacity: 0.96,
+      } as React.CSSProperties,
+      bottomGlow: {
+        position: "fixed",
+        left: "50%",
+        bottom: "200px",
+        transform: "translateX(-50%)",
+        width: "2020px",
+        height: "2040px",
+        borderRadius: "50%",
+        background:
+          "radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.03) 28%, rgba(255, 255, 255, 0.01) 48%, rgba(255, 255, 255, 0) 100%)",
+        filter: "blur(22px)",
+        opacity: 0.8,
+        pointerEvents: "none",
+        zIndex: 0,
+        animation: "bottomGlowPulse 5s ease-in-out infinite",
+      } as React.CSSProperties,
+    }),
+    []
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const scaleW = Math.min(Math.max(width / 700, 0.7), 1);
+      const scaleH = Math.min(Math.max(height / 960, 0.7), 1);
+      const scale = Math.min(scaleW, scaleH);
+      document.documentElement.style.setProperty("--deck-scale", String(scale));
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const MODE_KEY = "gc_mode_v1";
+  const [mode, setMode] = useState<"forYou" | "explore">("forYou");
+
+  // After mount, read persisted mode (avoids hydration mismatches)
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(MODE_KEY);
+      if (raw === "explore") setMode("explore");
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try { window.localStorage.setItem(MODE_KEY, mode); } catch {}
+  }, [mode]);
+
+  // Listen for a custom event from ExploreSwitcher as a fallback
+  useEffect(() => {
+    const onSwitch = (e: any) => {
+      const v = e?.detail === "explore" ? "explore" : "forYou";
+      setMode(v);
+    };
+    window.addEventListener("explore:switch", onSwitch as any);
+    return () => window.removeEventListener("explore:switch", onSwitch as any);
+  }, []);
+
+  const { catalog, loading, error } = useGameStore();
+  // --- Genre preference filtering (from Settings) ---
+  const STORAGE_KEY = "gc_genre_prefs_v1";
+
+  // Build a set of selected genres from localStorage; default to all when missing
+  const allGenres = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const g of catalog) for (const gen of (g.genre ?? [])) {
+      const t = String(gen).trim(); if (t) s.add(t);
+    }
+    return Array.from(s);
+  }, [catalog]);
+
+  const [selectedGenres, setSelectedGenres] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    const readPrefs = () => {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const arr = JSON.parse(raw) as string[];
+          setSelectedGenres(new Set(arr));
+        } else {
+          // default: all genres selected
+          setSelectedGenres(new Set(allGenres));
+        }
+      } catch {
+        setSelectedGenres(new Set(allGenres));
+      }
+    };
+    readPrefs();
+    window.addEventListener('storage', readPrefs);
+    return () => window.removeEventListener('storage', readPrefs);
+  }, [allGenres]);
+
+  const filteredCatalog = React.useMemo(() => {
+    if (selectedGenres.size === 0) return [];
+    return catalog.filter(g => (g.genre ?? []).some(gen => selectedGenres.has(String(gen).trim())));
+  }, [catalog, selectedGenres]);
+
+  const deckItems = React.useMemo(() => {
+    return filteredCatalog.map(g => ({
+      id: g.id,
+      title: g.title,
+      mainImage: g.images[0] ? g.images[0].toString() : "",
+      previews: g.images.slice(1, 5).map(u => u.toString()),
+      description: g.description,
+      developer: g.developer,
+      publisher: g.publisher,
+      age_rating: g.ageRating,
+      genre: g.genre.join(", "),
+      links: g.links ?? {},
+      videoUrl: g.videoUrl ?? null,
+    }));
+  }, [filteredCatalog]);
+
+  return (
+    <div style={styles.page}>
+      <style jsx>{`
+        @keyframes cardDashLoop {
+          0% {
+            stroke-dashoffset: 140;
+          }
+          100% {
+            stroke-dashoffset: -140;
+          }
+        }
+
+        @keyframes cardGlow {
+          0%,
+          100% {
+            filter: drop-shadow(0 0 0px #ef7f2a);
+          }
+          50% {
+            filter: drop-shadow(0 0 10px #ef7f2a);
+          }
+        }
+
+        @keyframes bottomGlowPulse {
+          0%,
+          100% {
+            opacity: 0.62;
+            transform: translateX(-50%) scale(0.96);
+          }
+          50% {
+            opacity: 0.88;
+            transform: translateX(-50%) scale(1);
+          }
+        }
+
+      `}</style>
+      <div style={styles.bottomGlow} aria-hidden="true" />
+      <div style={styles.tabBar}>
+        <TabBar/>
+      </div>
+      <div style={styles.logo}>
+        <a href="/">
+          <img
+            src="/logo.svg"
+            alt="Logo"
+            style={{ width: "110px", height: "90px", display: "block" }}
+          />
+        </a>
+      </div>
+      <div style={styles.container}>
+        <div style={styles.mainContent}>
+          {loading && (
+            <div style={styles.loaderWrap} aria-live="polite" aria-label="Loading games">
+              <svg
+                width="70"
+                height="94"
+                viewBox="0 0 70 94"
+                role="img"
+                aria-hidden="true"
+                style={{ animation: "cardGlow 1.5s ease-in-out infinite" }}
+              >
+                <rect
+                  x="8"
+                  y="8"
+                  width="54"
+                  height="78"
+                  rx="13"
+                  ry="13"
+                  fill="none"
+                  stroke="#ef7f2a"
+                  strokeWidth="3"
+                  strokeDasharray="70 70"
+                  style={{ animation: "cardDashLoop 1.25s linear infinite" }}
+                />
+              </svg>
+              <div style={styles.loaderLabel}>Loading IndieDeck</div>
+            </div>
+          )}
+          {error && <div style={{ padding: 16, color: 'crimson' }}>Error: {error}</div>}
+          {!loading && !error && deckItems.length > 0 && deckEmpty && (
+            <div style={styles.loaderWrap} aria-live="polite" aria-label="No more games">
+              <svg
+                width="70"
+                height="94"
+                viewBox="0 0 70 94"
+                role="img"
+                aria-hidden="true"
+                style={{ animation: "cardGlow 1.5s ease-in-out infinite" }}
+              >
+                <rect
+                  x="8"
+                  y="8"
+                  width="54"
+                  height="78"
+                  rx="13"
+                  ry="13"
+                  fill="none"
+                  stroke="#ef7f2a"
+                  strokeWidth="3"
+                  strokeDasharray="70 70"
+                  style={{ animation: "cardDashLoop 1.25s linear infinite" }}
+                />
+              </svg>
+              <div style={styles.emptyLabel}>We'll be back with more games soon!
+              </div>
+            </div>
+          )}
+            <div style={styles.deckWrap}>
+              <Deck
+                items={deckItems}
+                renderCard={(item, ctx) => <GameCard data={item} isFront={!!ctx?.isFront} />}
+                onEmptyChange={setDeckEmpty}
+              />
+            </div>
+        </div>
+      </div>
+      <SwipeHint />
+    </div>
+  );
+}
