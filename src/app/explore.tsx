@@ -139,7 +139,7 @@ export default function Explore() {
   });
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="motion-page">
       <div style={styles.container}>
         <h1 style={styles.title}>Explore</h1>
 
@@ -151,7 +151,7 @@ export default function Explore() {
         )}
 
         {!loading && !error && grouped.map(([genre, games]) => (
-          <section key={genre} style={styles.section}>
+          <section key={genre} style={{ ...styles.section, ["--motion-delay" as string]: `${Math.min(genre.length * 8, 160)}ms` } as React.CSSProperties} className="motion-rise">
             <div style={styles.rowHead}>{genre}</div>
             <div style={styles.scroller} className="rowScroller">
               {games.map((g) => (
@@ -169,8 +169,8 @@ export default function Explore() {
       </div>
 
       {selected && (
-        <div style={styles.overlay} onClick={() => setSelected(null)}>
-          <div style={styles.sheet} onClick={(e) => e.stopPropagation()}>
+        <div style={styles.overlay} className="motion-backdrop" onClick={() => setSelected(null)}>
+          <div style={styles.sheet} className="motion-modal" onClick={(e) => e.stopPropagation()}>
             <div style={styles.closeHit} onClick={() => setSelected(null)} aria-label="Close overlay">✕</div>
             <div style={{ transform: 'scale(var(--card-scale, 1))', transformOrigin: 'center', transition: 'transform 0.3s ease', display: 'flex', justifyContent: 'center', zIndex: 999999 }}>
               <GameCard data={toCardData(selected)} />

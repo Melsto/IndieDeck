@@ -294,7 +294,7 @@ export default function MainPage() {
   );
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="motion-page">
       <div style={styles.tabBar}>
         <TabBar />
       </div>
@@ -313,7 +313,7 @@ export default function MainPage() {
           <h1 style={styles.headline}>Settings</h1>
 
           {/* Settings Section with two panels inside */}
-          <div style={styles.section}>
+          <div style={styles.section} className="motion-rise">
             <div style={styles.sectionTitle}>Genre Preferences</div>
             <GenreToggles
               genres={allGenres}

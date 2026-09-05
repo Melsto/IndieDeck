@@ -216,11 +216,35 @@ export default function MainPage() {
   }, [likedGames, activeGenre]);
 
   const [selected, setSelected] = useState<null | typeof catalog[number]>(null);
+  const [modalMounted, setModalMounted] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const modalTimerRef = useRef<number | null>(null);
+
+  const openGame = (game: typeof catalog[number]) => {
+    if (modalTimerRef.current !== null) window.clearTimeout(modalTimerRef.current);
+    setSelected(game);
+    setModalMounted(true);
+    requestAnimationFrame(() => setModalVisible(true));
+  };
+
+  const closeGame = () => {
+    setModalVisible(false);
+    if (modalTimerRef.current !== null) window.clearTimeout(modalTimerRef.current);
+    modalTimerRef.current = window.setTimeout(() => {
+      setModalMounted(false);
+      setSelected(null);
+      modalTimerRef.current = null;
+    }, 220);
+  };
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelected(null); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeGame(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+  }, [modalVisible]);
+
+  useEffect(() => () => {
+    if (modalTimerRef.current !== null) window.clearTimeout(modalTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -253,7 +277,7 @@ export default function MainPage() {
   }
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="motion-page">
               <div style={styles.tabBar}>
           <TabBar />
         </div>
@@ -297,14 +321,15 @@ export default function MainPage() {
               {filteredLiked.length === 0 ? (
                 <div style={{ color: "#777", textAlign: "center", width: "100%" }}>No liked games.</div>
               ) : (
-                filteredLiked.map((game) => (
-                  <LikedGameCard
-                    key={game.id}
-                    id={game.id}
-                    title={game.title}
-                    image={game.images && game.images[0] ? game.images[0].toString() : undefined}
-                    onClick={() => setSelected(game)}
-                  />
+                filteredLiked.map((game, index) => (
+                  <div key={game.id} className="motion-rise" style={{ ["--motion-delay" as string]: `${Math.min(index * 45, 360)}ms` } as React.CSSProperties}>
+                    <LikedGameCard
+                      id={game.id}
+                      title={game.title}
+                      image={game.images && game.images[0] ? game.images[0].toString() : undefined}
+                      onClick={() => openGame(game)}
+                    />
+                  </div>
                 ))
               )}
             </div>
@@ -312,10 +337,10 @@ export default function MainPage() {
           </div>
         </div>
       </div>
-      {selected && (
-        <div style={styles.overlay} onClick={() => setSelected(null)}>
-          <div style={styles.sheet} onClick={(e) => e.stopPropagation()}>
-            <div style={{ transform: 'scale(var(--card-scale, 1))', transformOrigin: 'center', transition: 'transform 0.3s ease', display: 'flex', justifyContent: 'center' }}>
+      {modalMounted && selected && (
+        <div style={{ ...styles.overlay, opacity: modalVisible ? 1 : 0, transition: "opacity 220ms ease" }} className="motion-backdrop" onClick={closeGame}>
+          <div style={styles.sheet} className="motion-modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{ transform: `scale(${modalVisible ? "var(--card-scale, 1)" : "0.96"})`, opacity: modalVisible ? 1 : 0, transformOrigin: 'center', transition: 'transform 220ms ease, opacity 220ms ease', display: 'flex', justifyContent: 'center' }}>
               <GameCard data={toCardData(selected)} />
             </div>
           </div>

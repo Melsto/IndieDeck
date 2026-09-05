@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+@keyframes motionPageIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes motionRiseIn {
+  from { opacity: 0; transform: translateY(16px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes motionModalIn {
+  from { opacity: 0; transform: scale(.96) translateY(10px); filter: blur(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+@keyframes motionBackdropIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+.motion-page { animation: motionPageIn 620ms cubic-bezier(.22, 1, .36, 1) both; }
+.motion-rise { animation: motionRiseIn 520ms cubic-bezier(.22, 1, .36, 1) both; animation-delay: var(--motion-delay, 0ms); }
+.motion-modal { animation: motionModalIn 360ms cubic-bezier(.22, 1, .36, 1) both; }
+.motion-backdrop { animation: motionBackdropIn 260ms ease-out both; }
+.motion-card { animation: motionRiseIn 560ms cubic-bezier(.22, 1, .36, 1) both; }
+.motion-interactive { transition: transform 220ms cubic-bezier(.22, 1, .36, 1), filter 220ms ease, box-shadow 220ms ease, background-color 220ms ease; }
+.admin-shell { animation: motionPageIn 520ms cubic-bezier(.22, 1, .36, 1) both; }
+.admin-form, .admin-layout > aside { animation: motionRiseIn 520ms cubic-bezier(.22, 1, .36, 1) 100ms both; }
+.admin-game { transition: background-color 180ms ease, transform 180ms ease, padding-left 180ms ease; }
+.admin-game:hover { background: rgba(255,255,255,.04); transform: translateX(3px); padding-left: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 1ms !important; }
+}
+
 .admin-shell { min-height: 100dvh; background: #111; color: #f7f7f2; font-family: Georgia, "Times New Roman", serif; padding: 48px 24px; }
 .admin-layout { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr); gap: 56px; }.admin-login { width: min(100%, 390px); margin: 12vh auto; display: grid; gap: 18px; }.admin-kicker { color: #ef7f2a; font: 700 12px ui-sans-serif, sans-serif; letter-spacing: .12em; text-transform: uppercase; margin: 0; }.admin-shell h1 { font-size: 38px; margin: 8px 0 28px; }.admin-shell h2 { margin: 0; font-size: 23px; }.admin-form { display: grid; gap: 18px; }.admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }.admin-shell label, .admin-shell legend { display: grid; gap: 7px; font: 700 13px ui-sans-serif, sans-serif; }.admin-shell input, .admin-shell select, .admin-shell textarea { box-sizing: border-box; width: 100%; color: #f7f7f2; background: #1b1b1b; border: 1px solid #3b3b3b; border-radius: 4px; padding: 10px; font: 15px ui-sans-serif, sans-serif; }.admin-shell textarea { min-height: 92px; resize: vertical; }.admin-shell fieldset { border: 1px solid #3b3b3b; border-radius: 4px; padding: 14px; }.admin-shell legend { padding: 0 4px; }.admin-primary, .admin-login button { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: #ef7f2a; color: #151515; border: 0; border-radius: 4px; padding: 11px 15px; font: 800 14px ui-sans-serif, sans-serif; cursor: pointer; }.admin-primary:disabled, .admin-login button:disabled { opacity: .6; cursor: wait; }.admin-message { color: #f6bc75; margin: 0; font: 14px ui-sans-serif, sans-serif; }.admin-error { color: #ff8b7f; margin: 0; font: 14px ui-sans-serif, sans-serif; }.admin-count { color: #aaa; margin-top: 6px; font: 14px ui-sans-serif, sans-serif; }.admin-games { display: grid; gap: 8px; margin-top: 18px; max-height: 70dvh; overflow: auto; }.admin-game { display: grid; grid-template-columns: 52px 1fr 32px; gap: 10px; align-items: center; border-bottom: 1px solid #303030; padding: 8px 0; font-family: ui-sans-serif, sans-serif; }.admin-game img, .admin-image-placeholder { width: 52px; height: 42px; object-fit: cover; background: #282828; border-radius: 3px; }.admin-game strong, .admin-game span { display: block; }.admin-game span { margin-top: 4px; color: #aaa; font-size: 12px; }.admin-delete { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 4px; color: #ff9e92; background: transparent; cursor: pointer; }.admin-delete:hover { background: #3a211e; } @media (max-width: 760px) { .admin-shell { padding: 28px 16px; }.admin-layout { grid-template-columns: 1fr; gap: 42px; }.admin-grid { grid-template-columns: 1fr; }.admin-games { max-height: none; } }
 .steam-import { position: relative; margin: -12px 0 22px; }.steam-results { position: absolute; z-index: 3; width: 100%; border: 1px solid #4b4b4b; background: #191919; }.steam-results button { display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center; width: 100%; padding: 8px; border: 0; border-bottom: 1px solid #333; background: transparent; color: #f7f7f2; text-align: left; cursor: pointer; font: 14px ui-sans-serif, sans-serif; }.steam-results button:hover { background: #2a2a2a; }.steam-results img { width: 52px; height: 28px; object-fit: cover; }.imported-images { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }.imported-images img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; }

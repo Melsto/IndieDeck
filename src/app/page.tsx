@@ -214,7 +214,7 @@ export default function MainPage() {
   }, [filteredCatalog]);
 
   return (
-    <div style={styles.page}>
+    <div style={styles.page} className="motion-page">
       <style jsx>{`
         @keyframes cardDashLoop {
           0% {
