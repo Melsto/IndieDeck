@@ -26,6 +26,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
     touchAction: "none",
     userSelect: "none",
     WebkitUserSelect: "none",
+    cursor: interactive ? "grab" : "default",
   });
 
   const threshold = () => (typeof window !== "undefined" ? Math.min(220, window.innerWidth * 0.28) : 200);
@@ -64,6 +65,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
   const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
     dragging.current = true;
+    setStyle((s) => ({ ...s, cursor: "grabbing" }));
     onDrag?.(pos.current.x, pos.current.y);
     disableGlobalSelection();
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -80,6 +82,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
     if (!dragging.current) return;
     enableGlobalSelection();
     dragging.current = false;
+    setStyle((s) => ({ ...s, cursor: "grab" }));
     const t = threshold();
     const x = pos.current.x;
     const y = pos.current.y;
@@ -104,6 +107,7 @@ export default function DraggableCard({ children, onSwiped, interactive = true, 
   const endDrag = () => {
     dragging.current = false;
     enableGlobalSelection();
+    setStyle((s) => ({ ...s, cursor: "grab" }));
   };
   const onPointerCancel: React.PointerEventHandler<HTMLDivElement> = () => {
     if (!dragging.current) return;
